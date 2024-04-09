@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from itertools import count
 
 app = Flask(__name__)
 
@@ -8,7 +9,9 @@ account = {
     "total_deposits_today": 0,
     "total_withdrawals_today": 0,
     "deposit_transactions_today": 0,
-    "withdrawal_transactions_today": 0
+    "withdrawal_transactions_today": 0,
+    "account_id": None,
+    "customer_id": None
 }
 
 # Constants for constraints
@@ -19,14 +22,20 @@ MAX_WITHDRAWAL_PER_TRANSACTION = 20000
 MAX_WITHDRAWAL_FREQUENCY_PER_DAY = 3
 MAX_WITHDRAWAL_PER_DAY = 50000
 
-@app.route("/home")
+#Incremental Account and Customer IDs
+account_id_counter = count(start=0)
+customer_id_counter = count(start=0)
+
+@app.route("/")
 def index():
     return render_template('home.html')
 
+# Get Balance
 @app.route('/balance', methods=['GET'])
 def get_balance():
     return jsonify({'balance': account["account_balance"]})
 
+# Deposit
 @app.route('/deposit', methods=['POST'])
 def deposit():
     amount = request.json.get('amount', 0)
@@ -52,6 +61,7 @@ def deposit():
     
     return jsonify({'message': 'Deposit successful'})
 
+# Withdrawal
 @app.route('/withdrawal', methods=['POST'])
 def withdrawal():
     amount = request.json.get('amount', 0)
@@ -79,6 +89,19 @@ def withdrawal():
     account["withdrawal_transactions_today"] += 1
     
     return jsonify({'message': 'Withdrawal successful'})
+
+# Create Account
+@app.route('/create_account', methods=['POST'])
+def create_account():
+    # Generate incremental IDs
+    account_id = next(account_id_counter)
+    customer_id = next(customer_id_counter)
+    
+    # Store IDs in the account object
+    account['account_id'] = account_id
+    account['customer_id'] = customer_id
+    
+    return jsonify({'message': 'Account created successfully', 'account_id': account_id, 'customer_id': customer_id})
 
 if __name__ == '__main__':
     app.run()

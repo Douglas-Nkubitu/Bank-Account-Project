@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bank App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+
+    table {
+      margin: auto;
+      border-collapse: collapse;
+      width: 75%;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    input[type="number"] {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #error {
+      color: red;
+      margin-top: 10px;
+    }
+
+    #customerDetails {
+      display: none;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Welcome to Our Bank</h1>
+
+  <!-- Create Account Button -->
+  <button id="createAccountButton" onclick="createAccount()">Open Account</button>
+
+  <!-- Customer Details -->
+  <div id="customerDetails">
+    <h2>Customer Details</h2>
+    <div style="display: inline-block; margin-left: 20px;"><strong>Account ID:</strong> <span id="accountId"></span></div>
+    <div style="display: inline-block;"><strong>Customer ID:</strong> <span id="customerId"></span></div>
+    <div><strong>Balance:</strong> <span id="balance">Loading balance...</span></div>
+  </div>
+
+  <table id="mainInterface" style="display: none">
+    <tr>
+      <th>Enter Amount:</th>
+      <td><input type="number" id="amountInput" /></td>
+    </tr>
+    <tr>
+      <th colspan="2">
+        <div id="instructions">
+          <p>Enter a valid amount for deposit or withdrawal.</p>
+          <p>Deposit limits: Max per transaction: Kes. 40K, Max frequency: 4 transactions/day, Max for the day: Kes. 150K</p>
+          <p>Withdrawal limits: Max per transaction: Kes. 20K, Max frequency: 3 transactions/day, Max for the day: Kes. 50K</p>
+        </div>
+      </th>
+    </tr>
+    <tr>
+      <th>Actions:</th>
+      <td>
+        <div id="buttons">
+          <button onclick="deposit()">Deposit</button>
+          <button onclick="fetchBalance()">Check Bank Balance</button>
+          <button onclick="withdraw()">Withdraw</button>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <div id="error"></div>
+      </td>
+    </tr>
+  </table>
+
+  <script>
+    let customerId;
+    let accountId;
+
+    async function fetchBalance() {
+      try {
+        const url = `${window.location.protocol}//${window.location.host}/balance?account_id=${accountId}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        document.getElementById("balance").textContent = `Kes. ${data.balance}`;
+      } catch (error) {
+        console.error("Error fetching balance:", error.message);
+      }
+    }
+
+    // Function to create account
+    async function createAccount() {
+      try {
+        const url = `${window.location.protocol}//${window.location.host}/create_account`;
+        const response = await fetch(url, { method: "POST" });
+        const data = await response.json();
+
+        // Store customer and account details
+        customerId = data.customer_id;
+        accountId = data.account_id;
+
+        // Display customer details
+        document.getElementById("customerId").textContent = customerId;
+        document.getElementById("accountId").textContent = accountId;
+        document.getElementById("balance").textContent = "Kes. 0.00"; // Set initial balance
+
+        // Hide create account button and reveal the main interface
+        document.getElementById("createAccountButton").style.display = "none";
+        document.getElementById("customerDetails").style.display = "block";
+        document.getElementById("mainInterface").style.display = "table";
+      } catch (error) {
+        console.error("Error creating account:", error.message);
+        document.getElementById("error").textContent =
+          "Error creating an account. Please try again later.";
+      }
+    }
+
+    // Function to handle deposit
+    async function deposit() {
+      const amountInput = document.getElementById("amountInput");
+      const amount = amountInput.value;
+
+      try {
+        const url = `${window.location.protocol}//${window.location.host}/deposit`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: parseFloat(amount),
+          }),
+        });
+
+        // Clear input text after deposit
+        amountInput.value = "";
+
+        // Refresh balance after deposit
+        fetchBalance();
+        const data = await response.json();
+        document.getElementById("error").textContent = data.message || data.error; // Clear any previous errors
+      } catch (error) {
+        console.error("Error depositing:", error.message);
+        document.getElementById("error").textContent =
+          "Error depositing. Please try again later.";
+      }
+    }
+
+    // Function to handle withdrawal
+    async function withdraw() {
+      const amountInput = document.getElementById("amountInput");
+      const amount = amountInput.value;
+
+      try {
+        const url = `${window.location.protocol}//${window.location.host}/withdrawal`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount: parseFloat(amount),
+          }),
+        });
+
+        // Clear input text after withdrawal
+        amountInput.value = "";
+
+        // Refresh balance after withdrawal
+        fetchBalance();
+        const data = await response.json();
+        document.getElementById("error").textContent = data.message || data.error;
+      } catch (error) {
+        console.error("Error withdrawing:", error.message);
+        document.getElementById("error").textContent =
+          "Error withdrawing. Please try again later.";
+      }
+    }
+  </script>
+</body>
+</html>
