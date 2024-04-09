@@ -20,9 +20,12 @@ The goal of this mini project is to write a simple micro web service to mimic a 
 
 ### Installation
 
++ Clone Repo
+  
 ```sh
 git clone https://github.com/Douglas-Nkubitu/Bank-Account-Project.git
 ```
++ Navigate to bankApp
 
 ```sh
 cd Bank-Account-Project/bankApp
@@ -48,11 +51,13 @@ python3 bankapp.py
 
 ### Running unittest TestCase
 
-+ Navigate to
++ Navigate to bankApp
+  
 ```sh
 cd Bank-Account-Project/bankApp
 ```
 + Run
+  
 ```sh
 python3 -m unittest discover -s tests
 ```
