@@ -104,4 +104,4 @@ def create_account():
     return jsonify({'message': 'Account created successfully', 'account_id': account_id, 'customer_id': customer_id})
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

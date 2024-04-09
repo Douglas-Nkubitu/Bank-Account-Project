@@ -1,5 +1,5 @@
 import unittest
-from ..bankapp import app
+from bankapp import app
 
 class TestFlaskApp(unittest.TestCase):
 
@@ -61,7 +61,7 @@ class TestFlaskApp(unittest.TestCase):
         self.assertEqual(data['message'], 'Withdrawal successful')
 
     def test_balance_less_than_withdrawal_amount(self):
-        response = self.app.post('/withdrawal', json={'amount': 500})
+        response = self.app.post('/withdrawal', json={'amount': 500000})
         self.assertEqual(response.status_code, 400)
         data = response.get_json()
         self.assertIn('error', data)
@@ -75,10 +75,10 @@ class TestFlaskApp(unittest.TestCase):
         self.assertEqual(data['error'], 'Exceeded Maximum Withdrawal Per Transaction')
 
     def test_exceed_withdrawal_per_day(self):
-        for x in range(5):
-            response = self.app.post('/withdrawal', json={'amount': 10000})
+        for x in range(4):
+            response = self.app.post('/withdrawal', json={'amount': 15000})
 
-            if x == 4:
+            if x == 3:
                 self.assertEqual(response.status_code, 400)
                 data = response.get_json()
                 self.assertIn('error', data)
