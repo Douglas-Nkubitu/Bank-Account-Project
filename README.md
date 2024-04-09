@@ -45,3 +45,14 @@ pip3 install flask
 ```sh
 python3 bankapp.py
 ```
+
+### Running unittest TestCase
+
++ Navigate to
+```sh
+cd Bank-Account-Project/bankApp
+```
++ Run
+```sh
+python3 -m unittest discover -s tests
+```
