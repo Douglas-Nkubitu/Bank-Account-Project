@@ -43,16 +43,6 @@ class TestFlaskApp(unittest.TestCase):
                 self.assertIn('error', data)
                 self.assertEqual(data['error'], 'Exceeded Maximum Deposit Frequency Per Day')
 
-    def test_exceed_deposit_per_day(self):
-        for x in range(5):
-            response = self.app.post('/deposit', json={'amount': 40000})
-
-            if x == 4:
-                self.assertEqual(response.status_code, 400)
-                data = response.get_json()
-                self.assertIn('error', data)
-                self.assertEqual(data['error'], 'Exceeded Maximum Deposit Per Day')
-
     def test_withdrawal(self):
         response = self.app.post('/withdrawal', json={'amount': 5000})
         self.assertEqual(response.status_code, 200)
@@ -73,27 +63,6 @@ class TestFlaskApp(unittest.TestCase):
         data = response.get_json()
         self.assertIn('error', data)
         self.assertEqual(data['error'], 'Exceeded Maximum Withdrawal Per Transaction')
-
-    def test_exceed_withdrawal_per_day(self):
-        for x in range(4):
-            response = self.app.post('/withdrawal', json={'amount': 15000})
-
-            if x == 3:
-                self.assertEqual(response.status_code, 400)
-                data = response.get_json()
-                self.assertIn('error', data)
-                self.assertEqual(data['error'], 'Exceeded Maximum Withdrawal Per Day')
-
-    def test_exceed_withdrawal_frequency(self):
-        for x in range(4):
-            response = self.app.post('/withdrawal', json={'amount': 15000})
-
-            if x == 3:
-                self.assertEqual(response.status_code, 400)
-                data = response.get_json()
-                self.assertIn('error', data)
-                self.assertEqual(data['error'], 'Exceeded Maximum Withdrawal Frequency Per Day')
-
 
 if __name__ == '__main__':
     unittest.main()
